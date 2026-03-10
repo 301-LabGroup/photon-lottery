@@ -17,6 +17,7 @@ import com.example.getoutthere.admin.ManageImagesActivity;
 import com.example.getoutthere.admin.ManageOrganizersActivity;
 import com.example.getoutthere.admin.ManageProfilesActivity;
 import com.example.getoutthere.admin.NotificationLogsActivity;
+import com.example.getoutthere.event.EventListActivity;
 
 // Dashboard for entrant
 public class EntrantDashboardActivity extends AppCompatActivity {
@@ -34,6 +35,8 @@ public class EntrantDashboardActivity extends AppCompatActivity {
 
         Button NavToEventManager = findViewById(R.id.NavToCreateEventManager);
 
+
+        // TODO: Change these buttons to redirect to proper pages
         NavToEventManager.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,7 +60,7 @@ public class EntrantDashboardActivity extends AppCompatActivity {
         NavToImageManager.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(EntrantDashboardActivity.this, ManageImagesActivity.class);
+                Intent intent = new Intent(EntrantDashboardActivity.this, EventListActivity.class);
                 startActivity(intent);
             }
         });
