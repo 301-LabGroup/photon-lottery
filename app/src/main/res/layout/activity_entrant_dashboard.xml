@@ -8,12 +8,12 @@
     android:layout_height="match_parent">
 
     <Button
-        android:id="@+id/NavToCreateEventManager"
+        android:id="@+id/button1"
         android:layout_width="match_parent"
         android:layout_marginHorizontal="50dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="216dp"
-        android:text="Manage Events"
+        android:text="Create Events"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -21,47 +21,47 @@
         app:layout_constraintVertical_chainStyle="packed" />
 
     <Button
-        android:id="@+id/NavToNotificationBoardManager"
+        android:id="@+id/button2"
         android:layout_width="match_parent"
         android:layout_marginHorizontal="50dp"
         android:layout_height="wrap_content"
-        android:text="Manage Profiles"
+        android:text="Notification Board"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/NavToCreateEventManager" />
+        app:layout_constraintTop_toBottomOf="@+id/button1" />
 
     <Button
-        android:id="@+id/NavToOpenEventsManager"
+        android:id="@+id/button3"
         android:layout_width="match_parent"
         android:layout_marginHorizontal="50dp"
         android:layout_height="wrap_content"
-        android:text="Manage Images"
+        android:text="Open Events"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/NavToNotificationBoardManager" />
+        app:layout_constraintTop_toBottomOf="@+id/button2" />
 
     <Button
-        android:id="@+id/NavToEventHistoryManager"
+        android:id="@+id/button4"
         android:layout_width="match_parent"
         android:layout_marginHorizontal="50dp"
         android:layout_height="wrap_content"
-        android:text="Manage Organizers"
+        android:text="Event History"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/NavToOpenEventsManager" />
+        app:layout_constraintTop_toBottomOf="@+id/button3" />
 
     <Button
-        android:id="@+id/NavToProfile"
+        android:id="@+id/button5"
         android:layout_width="match_parent"
         android:layout_marginHorizontal="50dp"
         android:layout_height="wrap_content"
-        android:text="View Notification Logs"
+        android:text="Profile"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/NavToEventHistoryManager" />
+        app:layout_constraintTop_toBottomOf="@+id/button4" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

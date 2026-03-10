@@ -13,7 +13,6 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.getoutthere.R;
 import com.example.getoutthere.admin.ManageEventsActivity;
-import com.example.getoutthere.admin.ManageImagesActivity;
 import com.example.getoutthere.admin.ManageOrganizersActivity;
 import com.example.getoutthere.admin.ManageProfilesActivity;
 import com.example.getoutthere.admin.NotificationLogsActivity;
@@ -33,10 +32,10 @@ public class EntrantDashboardActivity extends AppCompatActivity {
             return insets;
         });
 
-        Button NavToEventManager = findViewById(R.id.NavToCreateEventManager);
 
-
-        // TODO: Change these buttons to redirect to proper pages
+        // TODO: Change the buttons so they redirect to the proper activities
+        // TODO: Should redirect to Create Events
+        Button NavToEventManager = findViewById(R.id.button1);
         NavToEventManager.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -45,8 +44,8 @@ public class EntrantDashboardActivity extends AppCompatActivity {
             }
         });
 
-        Button NavToProfileManager = findViewById(R.id.NavToNotificationBoardManager);
-
+        // TODO: Should redirect to Notification Board
+        Button NavToProfileManager = findViewById(R.id.button2);
         NavToProfileManager.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -55,9 +54,9 @@ public class EntrantDashboardActivity extends AppCompatActivity {
             }
         });
 
-        Button NavToImageManager = findViewById(R.id.NavToOpenEventsManager);
-
-        NavToImageManager.setOnClickListener(new View.OnClickListener() {
+        // TODO: Should redirect to Open Events (Events list) [Caleb]
+        Button NavToEventList = findViewById(R.id.button3);
+        NavToEventList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(EntrantDashboardActivity.this, EventListActivity.class);
@@ -65,8 +64,8 @@ public class EntrantDashboardActivity extends AppCompatActivity {
             }
         });
 
-        Button NavToOrganizerManager = findViewById(R.id.NavToEventHistoryManager);
-
+        // TODO: Should redirect to Event History
+        Button NavToOrganizerManager = findViewById(R.id.button4);
         NavToOrganizerManager.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,8 +74,8 @@ public class EntrantDashboardActivity extends AppCompatActivity {
             }
         });
 
-        Button NavToNotificationLogs = findViewById(R.id.NavToProfile);
-
+        // TODO: Should redirect to User Profile
+        Button NavToNotificationLogs = findViewById(R.id.button5);
         NavToNotificationLogs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

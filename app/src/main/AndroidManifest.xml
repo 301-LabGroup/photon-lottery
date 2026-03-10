@@ -36,6 +36,9 @@
             android:name=".entrant.EntrantDashboardActivity"
             android:exported="false" />
         <activity
+            android:name=".event.EventListActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
