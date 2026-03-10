@@ -22,7 +22,6 @@ import java.util.List;
 
 //Show list of available events
 
-
 public class EventListActivity extends AppCompatActivity {
 
     private ListView listView;

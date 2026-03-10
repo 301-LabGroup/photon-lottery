@@ -1,4 +1,4 @@
-package com.example.getoutthere.admin;
+package com.example.getoutthere.entrant;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,22 +12,28 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.getoutthere.R;
+import com.example.getoutthere.admin.ManageEventsActivity;
+import com.example.getoutthere.event.EventListActivity;
 
 // Dashboard for entrant
-
 public class EntrantDashboardActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_admin_dashboard);
+        setContentView(R.layout.activity_entrant_dashboard);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
+        Button NavToEventList = findViewById(R.id.NavToEventList);
+        NavToEventList.setOnClickListener(v -> {
+            Intent intent = new Intent(EntrantDashboardActivity.this, EventListActivity.class);
+            startActivity(intent);
+        });
 
     }
 }
