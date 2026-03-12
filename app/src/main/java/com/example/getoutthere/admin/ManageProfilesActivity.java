@@ -81,9 +81,6 @@ public class ManageProfilesActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     //TODO: Toast Message for Error
                 });
-
-
-
     }
 
     private void render(){
