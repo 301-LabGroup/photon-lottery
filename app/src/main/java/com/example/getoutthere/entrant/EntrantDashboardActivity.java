@@ -85,5 +85,14 @@ public class EntrantDashboardActivity extends AppCompatActivity {
             }
         });
 
+        Button btnMyEvents = findViewById(R.id.btnMyEvents);
+        btnMyEvents.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(EntrantDashboardActivity.this, com.example.getoutthere.organizer.OrganizerEventListActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 }
