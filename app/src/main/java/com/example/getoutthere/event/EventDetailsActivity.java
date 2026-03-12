@@ -5,6 +5,8 @@ import android.provider.Settings;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ImageView;
+import com.bumptech.glide.Glide;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -71,19 +73,37 @@ public class EventDetailsActivity extends AppCompatActivity {
                 eventDate.setText("Lottery Draw Date: " + event.getDrawDate());
                 eventCapacity.setText("Spots Available: " + event.getCapacity());
                 eventFee.setText("Signup Fee: $" + event.getSignupFee());
+
+                ImageView eventPoster = findViewById(R.id.EventPoster);
+
+                // Check if the event has a poster URL saved
+                if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
+                    Glide.with(EventDetailsActivity.this)
+                            .load(event.getPosterUrl())
+                            .into(eventPoster);
+                }
             }
         });
 
         // Join waiting list
         btnJoin.setOnClickListener(v -> {
-            FirebaseHelper.joinWaitingList(event, entrant);
-            Toast.makeText(this, "Joined waiting list!", Toast.LENGTH_SHORT).show();
-        });
+            btnJoin.setEnabled(false);
+            btnJoin.setText("Joining...");
 
-        // Leave waiting list
-        btnLeave.setOnClickListener(v -> {
-            FirebaseHelper.leaveWaitingList(event, entrant);
-            Toast.makeText(this, "Left waiting list!", Toast.LENGTH_SHORT).show();
+            FirebaseHelper.joinWaitingList(event, entrant, new FirebaseHelper.WaitlistCallback() {
+                @Override
+                public void onSuccess() {
+                    Toast.makeText(EventDetailsActivity.this, "Joined waiting list!", Toast.LENGTH_SHORT).show();
+                    btnJoin.setText("Joined");
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    Toast.makeText(EventDetailsActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                    btnJoin.setEnabled(true);
+                    btnJoin.setText("Join Waiting List");
+                }
+            });
         });
     }
 }
