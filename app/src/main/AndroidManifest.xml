@@ -38,6 +38,9 @@
         <activity
             android:name=".event.EventListActivity"
             android:exported="false" />
+        <activity
+            android:name=".event.EventDetailsActivity"
+            android:exported="false" />
         <activity android:name=".organizer.OrganizerCreateEventActivity"
             android:exported="false" />
         <activity
@@ -49,7 +52,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".event.EventDetailsActivity"/>
         <activity android:name=".organizer.OrganizerEventListActivity" />
         <activity android:name=".organizer.OrganizerEventDetailsActivity" />
     </application>
