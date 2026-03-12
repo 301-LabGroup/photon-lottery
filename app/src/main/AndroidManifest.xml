@@ -49,6 +49,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".event.EventDetailsActivity"/>
+        <activity android:name=".organizer.OrganizerEventListActivity" />
+        <activity android:name=".organizer.OrganizerEventDetailsActivity" />
     </application>
 
 </manifest>
