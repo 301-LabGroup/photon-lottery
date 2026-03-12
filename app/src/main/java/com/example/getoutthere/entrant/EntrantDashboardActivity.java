@@ -17,6 +17,7 @@ import com.example.getoutthere.admin.ManageOrganizersActivity;
 import com.example.getoutthere.admin.ManageProfilesActivity;
 import com.example.getoutthere.admin.NotificationLogsActivity;
 import com.example.getoutthere.event.EventListActivity;
+import com.example.getoutthere.organizer.OrganizerEventDetailsActivity;
 
 // Dashboard for entrant
 public class EntrantDashboardActivity extends AppCompatActivity {
@@ -82,6 +83,14 @@ public class EntrantDashboardActivity extends AppCompatActivity {
                 Intent intent = new Intent(EntrantDashboardActivity.this, NotificationLogsActivity.class);
                 startActivity(intent);
             }
+        });
+
+        // TEMPORARY TEST BUTTON - REMOVE LATER
+        Button btnTestOrganizerView = findViewById(R.id.btnTestOrganizerView);
+        btnTestOrganizerView.setOnClickListener(v -> {
+            Intent intent = new Intent(EntrantDashboardActivity.this, OrganizerEventDetailsActivity.class);
+            intent.putExtra("eventId", "testEvent123");
+            startActivity(intent);
         });
 
     }

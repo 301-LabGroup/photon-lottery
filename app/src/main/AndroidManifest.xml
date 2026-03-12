@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GetOutThere">
         <activity
+            android:name=".organizer.OrganizerEventDetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".admin.NotificationLogsActivity"
             android:exported="false" />
         <activity
