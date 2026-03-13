@@ -2,6 +2,7 @@ package com.example.getoutthere.admin;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -10,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -21,17 +23,41 @@ import com.example.getoutthere.event.Event;
 import com.example.getoutthere.models.EntrantProfile;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Allows administrators to view the images for all events.
+ * Outstanding Issues:
+ * - None
+ */
 
+
+/**
+ * Represents the screen that can be used to view event posters.
+ * This class handles the structuring and displaying of the event posters,
+ * as well as a delete functionality that deletes the posters from the database.
+ * * @author Hassan Ali + Terence Bedell
+ * @version 1.0
+ */
 public class ManageImagesActivity extends AppCompatActivity {
 
     private List<Event> eventList = new ArrayList<>();
 
     private LinearLayout imagesContainer;
 
+    /**
+     * Initializes the activity and showcases event posters to the
+     * administrator. Allows the administrator to delete the posters.
+     * Also creates a button element that allows the user to
+     * return to the admin dashboard.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after being
+     * shut down then this Bundle contains the data it most recently
+     * supplied. Otherwise it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +85,11 @@ public class ManageImagesActivity extends AppCompatActivity {
         render();
     }
 
+    /**
+     * Fetches the data from the database and populates the eventList
+     * so the data that the event holds regarding the poster can be
+     * used to render the poster onto the screen.
+     */
     private void grabData(){
 
         // putting all events into eventList
@@ -81,11 +112,17 @@ public class ManageImagesActivity extends AppCompatActivity {
                     render(); // Redraw the UI after data is loaded
                 })
                 .addOnFailureListener(e -> {
-                    //TODO: Toast Message for Error
+                    Log.e("FetchImage", "Error fetching image", e);
                 });
 
     }
 
+    /**
+     * Renders the data present in the eventList onto the user's screen,
+     * by taking the poster URL and displaying the image associated.
+     * Allows for the user to delete the image from the database upon
+     * clicking the "Delete" button beside an image.
+     */
     private void render() {
 
         imagesContainer.removeAllViews();  // clearing anything previously present
@@ -115,8 +152,11 @@ public class ManageImagesActivity extends AppCompatActivity {
             imageParams.height = 300;
             imageView.setLayoutParams(imageParams);
 
-            Glide.with(this).load(currentEvent.getPosterUrl()).into(imageView);  // converting image url into actual image
-
+            if (currentEvent.getPosterUrl() != null) {
+                Glide.with(this).load(currentEvent.getPosterUrl()).into(imageView);  // converting image url into actual image
+            } else {
+                Glide.with(this).load("https://firebasestorage.googleapis.com/v0/b/photon-lottery.firebasestorage.app/o/event_posters%2Felementor-placeholder-image.png?alt=media&token=570ea3b4-1f99-4f52-be3f-86fa2a71f1a5").into(imageView);
+            }
 
             Button deleteButton = new Button(this);
             deleteButton.setText("DELETE");
@@ -129,6 +169,7 @@ public class ManageImagesActivity extends AppCompatActivity {
             );
             btnParams.setMargins(8, 0, 0, 0);
             deleteButton.setLayoutParams(btnParams);
+
             row.addView(imageView);
             row.addView(deleteButton);
             imagesContainer.addView(row);
