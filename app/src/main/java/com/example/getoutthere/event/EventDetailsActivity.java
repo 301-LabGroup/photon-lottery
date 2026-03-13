@@ -16,6 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.getoutthere.R;
 import com.example.getoutthere.models.EntrantProfile;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -149,6 +150,12 @@ public class EventDetailsActivity extends AppCompatActivity {
             if (event == null) return;
 
             if (!isOnWaitingList) {
+
+                // Check registration period before allowing join
+                if (!isRegistrationOpen()) {
+                    return;
+                }
+
                 // If event is full, user cannot join
                 if (event.getCurrentWaitlistCount() >= event.getCapacity()) {
                     Toast.makeText(EventDetailsActivity.this, "Event is full! Cannot join waiting list.", Toast.LENGTH_SHORT).show();
@@ -168,12 +175,10 @@ public class EventDetailsActivity extends AppCompatActivity {
                         .addOnSuccessListener(aVoid -> {
                             isOnWaitingList = true;
 
-                            // Atomically increment in Firestore
                             db.collection("events")
                                     .document(event.getId())
                                     .update("currentWaitlistCount", FieldValue.increment(1));
 
-                            // Update UI locally
                             event.setCurrentWaitlistCount(event.getCurrentWaitlistCount() + 1);
                             updateSpotsUI();
                             updateToggleButton();
@@ -190,12 +195,10 @@ public class EventDetailsActivity extends AppCompatActivity {
                         .addOnSuccessListener(aVoid -> {
                             isOnWaitingList = false;
 
-                            // Atomically decrement in Firestore
                             db.collection("events")
                                     .document(event.getId())
                                     .update("currentWaitlistCount", FieldValue.increment(-1));
 
-                            // Update UI locally
                             event.setCurrentWaitlistCount(event.getCurrentWaitlistCount() - 1);
                             updateSpotsUI();
                             updateToggleButton();
@@ -204,6 +207,8 @@ public class EventDetailsActivity extends AppCompatActivity {
                         .addOnFailureListener(e -> Toast.makeText(EventDetailsActivity.this, "Failed to leave waiting list", Toast.LENGTH_SHORT).show());
             }
         });
+
+
     }
 
     /**
@@ -213,6 +218,29 @@ public class EventDetailsActivity extends AppCompatActivity {
     void updateSpotsUI() {
         int spotsAvailable = event.getCapacity() - event.getCurrentWaitlistCount();
         eventCapacity.setText(spotsAvailable + "/" + event.getCapacity() + " spots available");
+    }
+
+    /**
+     * Checks whether the current time falls within the event's registration period.
+     *
+     * @return true if registration is currently open, false otherwise
+     */
+    private boolean isRegistrationOpen() {
+        Timestamp now = Timestamp.now();
+
+        if (event.getRegistrationStart() != null &&
+                now.compareTo(event.getRegistrationStart()) < 0) {
+            Toast.makeText(this, "Registration has not opened yet.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (event.getRegistrationEnd() != null &&
+                now.compareTo(event.getRegistrationEnd()) > 0) {
+            Toast.makeText(this, "Registration period has ended.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
     }
 
     /**
