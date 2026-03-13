@@ -5,23 +5,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#000000"
+    android:background="@color/black"
     android:fitsSystemWindows="true">
-
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp"
-        android:background="#8dc987">
+        android:background="@color/lightGreen">
 
         <Button
             android:id="@+id/btnBack"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:text="@string/lt"
-            android:backgroundTint="#808080"
-            android:textColor="#FFFFFF"
+            android:backgroundTint="@color/grey"
+            android:textColor="@color/white"
             android:padding="0dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"/>
@@ -33,10 +32,10 @@
             android:layout_toEndOf="@id/btnBack"
             android:layout_marginStart="8dp"
             android:text="@string/details"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:textSize="24sp"
             android:gravity="center"
-            android:background="#4CAF50"
+            android:background="@color/lightGreen"
             android:padding="12dp"/>
 
     </RelativeLayout>
@@ -46,10 +45,10 @@
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#000000"
-        app:tabTextColor="#FFFFFF"
-        app:tabSelectedTextColor="#FFFFFF"
-        app:tabIndicatorColor="#4CAF50"/>
+        android:background="@color/black"
+        app:tabTextColor="@color/white"
+        app:tabSelectedTextColor="@color/white"
+        app:tabIndicatorColor="@color/lightGreen"/>
 
     <!-- Tab Content -->
     <androidx.viewpager2.widget.ViewPager2
@@ -57,8 +56,6 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="#000000"/>
-
+        android:background="@color/black"/>
 
 </LinearLayout>
-
