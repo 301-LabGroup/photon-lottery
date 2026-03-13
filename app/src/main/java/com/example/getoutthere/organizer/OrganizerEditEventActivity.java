@@ -158,7 +158,7 @@ public class OrganizerEditEventActivity extends AppCompatActivity {
         Button backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(v -> finish());
 
-        TextView screenTitle = findViewById(R.id.screenTitle);
+        TextView screenTitle = findViewById(R.id.createEventTitle);
         screenTitle.setText("Edit Event");
     }
 
@@ -331,7 +331,7 @@ public class OrganizerEditEventActivity extends AppCompatActivity {
     private void setSavingState(boolean isSaving) {
         createEventButton.setEnabled(!isSaving);
         uploadPosterButton.setEnabled(!isSaving);
-        createEventButton.setText(isSaving ? "Saving..." : "Create Event");
+        createEventButton.setText(isSaving ? "Saving..." : "Save Changes");
     }
 
 
