@@ -17,6 +17,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+// The tests in this file have been generated through Claude AI
+
 @RunWith(AndroidJUnit4.class)
 public class AdminDashboardActivityTest {
 

@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+// The tests in this file have been generated through Claude AI
+
 public class ManageProfilesActivityTest {
 
     private List<EntrantProfile> profileList;
