@@ -158,7 +158,7 @@ public class OrganizerEditEventActivity extends AppCompatActivity {
         Button backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(v -> finish());
 
-        TextView screenTitle = findViewById(R.id.createEventTitle);
+        TextView screenTitle = findViewById(R.id.screenTitle);
         screenTitle.setText("Edit Event");
     }
 
