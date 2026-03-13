@@ -48,4 +48,6 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore:24.9.1")
     implementation("com.google.firebase:firebase-storage")
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("com.google.zxing:core:3.5.4")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 }
