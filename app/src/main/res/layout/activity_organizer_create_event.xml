@@ -9,20 +9,19 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="24dp">
-
-        <TextView
-            android:id="@+id/createEventTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Create Event"
-            android:textColor="#59A91E"
-            android:textSize="36sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        android:padding="24dp"
+        android:paddingBottom="100dp"> <TextView
+        android:id="@+id/createEventTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create Event"
+        android:textColor="#59A91E"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/posterPreview"
@@ -342,13 +341,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            android:layout_marginBottom="24dp"
             android:minHeight="56dp"
             android:text="Create Event"
             android:textColor="#FFFFFF"
             app:backgroundTint="#59A91E"
             app:cornerRadius="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/waitlistLimitInputLayout" />
