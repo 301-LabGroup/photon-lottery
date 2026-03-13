@@ -99,9 +99,8 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Navigate to waitlist management screen
         buttonViewWaitlist.setOnClickListener(v -> {
-            Intent intent = new Intent(OrganizerEventDetailsActivity.this, OrganizerWaitlistActivity.class);
+            Intent intent = new Intent(OrganizerEventDetailsActivity.this, EntrantListActivity.class);
             intent.putExtra("eventId", eventId);
             startActivity(intent);
         });
