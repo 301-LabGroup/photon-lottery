@@ -20,6 +20,10 @@
         <activity
             android:name=".admin.NotificationLogsActivity"
             android:exported="false" />
+        <activity android:name=".entrant.EventHistory"
+            android:exported="false" />
+        <activity android:name=".entrant.SignUpActivity"
+            android:exported="false" />
         <activity
             android:name=".admin.ManageOrganizersActivity"
             android:exported="false" />
