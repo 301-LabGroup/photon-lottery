@@ -71,8 +71,6 @@ public class ManageOrganizersActivity extends AppCompatActivity {
         render();
 
     }
-
-
     private void grabData() {
         FirebaseFirestore.getInstance().collection("events").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
