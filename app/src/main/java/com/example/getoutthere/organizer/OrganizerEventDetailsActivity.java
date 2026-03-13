@@ -84,11 +84,11 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-//        buttonViewWaitlist.setOnClickListener(v -> {
-//            Intent intent = new Intent(OrganizerEventDetailsActivity.this, OrganizerWaitlistActivity.class);
-//            intent.putExtra("eventId", eventId);
-//            startActivity(intent);
-//        });
+        buttonViewWaitlist.setOnClickListener(v -> {
+            Intent intent = new Intent(OrganizerEventDetailsActivity.this, EntrantListActivity.class);
+            intent.putExtra("eventId", eventId);
+            startActivity(intent);
+        });
 
         if (eventId == null || eventId.isEmpty()) {
             Toast.makeText(this, "Event ID not found", Toast.LENGTH_SHORT).show();
