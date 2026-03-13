@@ -53,4 +53,5 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.mockito:mockito-core:5.3.1")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
 }
