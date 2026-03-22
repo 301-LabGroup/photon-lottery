@@ -76,6 +76,9 @@
             android:name=".organizer.OrganizerEditEventActivity"
             android:exported="false" />
         <activity
+            android:name=".organizer.EntrantListActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
