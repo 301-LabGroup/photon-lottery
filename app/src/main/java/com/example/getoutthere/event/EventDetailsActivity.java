@@ -93,6 +93,10 @@ public class EventDetailsActivity extends AppCompatActivity {
         // Back button
         btnBack.setOnClickListener(v -> finish());
 
+        //  Lottery Info link
+        TextView btnLotteryInfo = findViewById(R.id.btnLotteryInfo);
+        btnLotteryInfo.setOnClickListener(v -> showLotteryCriteriaDialog());
+
         // Fetch event from Firestore
         db.collection("events").document(eventId).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
@@ -156,7 +160,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                     return;
                 }
 
-                // If [event -> waitlist] is full, user cannot join
+                // If waitlist is full, user cannot join
                 if (event.getWaitlistLimit() != null && event.getCurrentWaitlistCount() >= event.getWaitlistLimit()) {
                     Toast.makeText(EventDetailsActivity.this, "Waitlist is full! Cannot join waiting list.", Toast.LENGTH_SHORT).show();
                     return;
@@ -242,6 +246,20 @@ public class EventDetailsActivity extends AppCompatActivity {
         }
 
         return true;
+    }
+
+    /**
+     * Displays an info about the lottery selection criteria
+     */
+    private void showLotteryCriteriaDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Lottery Guidelines") // Set title
+                .setMessage("Selection for this event is processed via a randomized lottery system.\n\n" + //message
+                        "• Joining the waitlist does not guarantee entry.\n" +
+                        "• When the draw date occurs, entrants are selected entirely at random up to the event's capacity limit.\n" +
+                        "• If selected, you will receive a notification to finalize your enrollment.")
+                .setPositiveButton("Understood", null) // dismiss message
+                .show();
     }
 
     /**
