@@ -12,6 +12,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.getoutthere.R;
+import com.example.getoutthere.event.EventAdapter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -37,7 +38,6 @@ public class EventListActivity extends AppCompatActivity {
 
     private ListView listView;
     private List<Event> events = new ArrayList<>();
-    private List<String> eventNames = new ArrayList<>();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     /**
@@ -64,15 +64,14 @@ public class EventListActivity extends AppCompatActivity {
         // Fetch events from Firestore
         db.collection("events").get().addOnSuccessListener(queryDocumentSnapshots -> {
             events.clear();
-            eventNames.clear();
+
             for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                 Event event = doc.toObject(Event.class);
                 event.setId(doc.getId());
                 events.add(event);
-                eventNames.add(event.getName());
             }
 
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.item_history_row, eventNames);
+            EventAdapter adapter = new EventAdapter(this, events);
             listView.setAdapter(adapter);
         });
 
