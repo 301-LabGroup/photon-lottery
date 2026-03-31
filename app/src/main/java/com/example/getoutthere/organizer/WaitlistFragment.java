@@ -267,13 +267,26 @@ public class WaitlistFragment extends Fragment {
 
                     for (Map<String, String> entrant : selected) {
                         String deviceId = entrant.get("deviceId");
+
+                        // Update status to "Invited"
                         db.collection("events")
                                 .document(eventId)
                                 .collection("waitingList")
                                 .document(deviceId)
-                                .update("status", "Invited")    // Update status to "invited" in database
+                                .update("status", "Invited")
                                 .addOnFailureListener(e ->
-                                        Toast.makeText(getContext(), "Failed to update status: " + e.getMessage(), Toast.LENGTH_SHORT).show()); //update fails
+                                        Toast.makeText(getContext(), "Failed to update status: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+
+                        // Send the specific "lottery_invite" notification to the winner
+                        HashMap<String, Object> notificationData = new HashMap<>();
+                        notificationData.put("eventId", eventId);
+                        notificationData.put("message", "Congratulations! You have been selected from the waitlist. Please accept or decline.");
+                        notificationData.put("type", "lottery_invite");
+
+                        db.collection("profiles")
+                                .document(deviceId)
+                                .collection("notifications")
+                                .add(notificationData);
                     }
 
                     Toast.makeText(getContext(), selected.size() + " replacement entrant(s) selected!", Toast.LENGTH_SHORT).show(); // successfully updated status
