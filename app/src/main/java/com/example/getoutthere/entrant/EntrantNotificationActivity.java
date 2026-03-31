@@ -120,13 +120,18 @@ public class EntrantNotificationActivity extends AppCompatActivity {
 
             holder.tvMessage.setText(message);
 
-            // If it's a private invite, show the buttons. US 01.05.06
+            // Handle both Private Invites and Lottery Invites
             if ("private_invite".equals(type)) {
                 holder.layoutInviteButtons.setVisibility(View.VISIBLE);
-
-                holder.btnAccept.setOnClickListener(v -> acceptInvite(eventId, notifId));
-                holder.btnDecline.setOnClickListener(v -> declineInvite(notifId));
-            } else {
+                holder.btnAccept.setOnClickListener(v -> acceptPrivateInvite(eventId, notifId));
+                holder.btnDecline.setOnClickListener(v -> declinePrivateInvite(notifId));
+            }
+            else if ("lottery_invite".equals(type)) {
+                holder.layoutInviteButtons.setVisibility(View.VISIBLE);
+                holder.btnAccept.setOnClickListener(v -> acceptLotteryInvite(eventId, notifId));
+                holder.btnDecline.setOnClickListener(v -> declineLotteryInvite(eventId, notifId));
+            }
+            else {
                 holder.layoutInviteButtons.setVisibility(View.GONE);
             }
         }
@@ -136,28 +141,88 @@ public class EntrantNotificationActivity extends AppCompatActivity {
             return notificationList.size();
         }
 
-        // US 01.05.07 - Accept
-        private void acceptInvite(String eventId, String notifId) {
+        //  Private invite logic
+        private void acceptPrivateInvite(String eventId, String notifId) {
             if (currentProfile == null || eventId == null) return;
-
-            // Push entrant to event's waitlist
             db.collection("events").document(eventId).collection("waitingList").document(deviceId)
-                    .set(new HashMap<String, Object>() {{
-                        put("name", currentProfile.getName());
-                        put("email", currentProfile.getEmail());
-                        put("phone", currentProfile.getPhoneNumber());
-                    }})
+                    .set(getProfileMap())
                     .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(EntrantNotificationActivity.this, "Invite Accepted!", Toast.LENGTH_SHORT).show();
-                        deleteNotification(notifId); // Remove from inbox
-                    })
-                    .addOnFailureListener(e -> Toast.makeText(EntrantNotificationActivity.this, "Failed to join event", Toast.LENGTH_SHORT).show());
+                        Toast.makeText(EntrantNotificationActivity.this, "Private Invite Accepted!", Toast.LENGTH_SHORT).show();
+                        deleteNotification(notifId);
+                    });
         }
 
-        // US 01.05.07 - Decline
-        private void declineInvite(String notifId) {
+        private void declinePrivateInvite(String notifId) {
             deleteNotification(notifId);
-            Toast.makeText(EntrantNotificationActivity.this, "Invite Declined", Toast.LENGTH_SHORT).show();
+            Toast.makeText(EntrantNotificationActivity.this, "Private Invite Declined", Toast.LENGTH_SHORT).show();
+        }
+
+        //  Lottery invite logic
+        private void acceptLotteryInvite(String eventId, String notifId) {
+            if (currentProfile == null || eventId == null) return;
+
+            // update the status to "Enrolled"
+            db.collection("events").document(eventId).collection("waitingList").document(deviceId)
+                    .update("status", "Enrolled")
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(EntrantNotificationActivity.this, "Successfully Enrolled!", Toast.LENGTH_SHORT).show();
+                        deleteNotification(notifId);
+                    }).addOnFailureListener(e -> {
+                        Toast.makeText(EntrantNotificationActivity.this, "Failed to enroll.", Toast.LENGTH_SHORT).show();
+                    });
+        }
+
+        private void declineLotteryInvite(String eventId, String notifId) {
+            if (currentProfile == null || eventId == null) return;
+
+            // update the status to "Cancelled"
+            db.collection("events").document(eventId).collection("waitingList").document(deviceId)
+                    .update("status", "Cancelled")
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(EntrantNotificationActivity.this, "Invitation Declined.", Toast.LENGTH_SHORT).show();
+                        deleteNotification(notifId);
+
+                        // Trigger Redraw
+                        drawReplacement(eventId);
+                    });
+        }
+
+        private void drawReplacement(String eventId) {
+            // Find people who have the status "Waitlist"
+            db.collection("events").document(eventId).collection("waitingList")
+                    .whereEqualTo("status", "Waitlist")
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            List<DocumentSnapshot> waitlistDocs = queryDocumentSnapshots.getDocuments();
+
+                            // Randomly select one replacement
+                            java.util.Collections.shuffle(waitlistDocs);
+                            DocumentSnapshot winnerDoc = waitlistDocs.get(0);
+                            String winnerId = winnerDoc.getId();
+
+                            // Update the new winner's status to Invited
+                            db.collection("events").document(eventId).collection("waitingList").document(winnerId)
+                                    .update("status", "Invited");
+
+                            // Send notification to the new winner
+                            HashMap<String, Object> notificationData = new HashMap<>();
+                            notificationData.put("eventId", eventId);
+                            notificationData.put("message", "You have been selected for an event from the waitlist!");
+                            notificationData.put("type", "lottery_invite");
+
+                            db.collection("profiles").document(winnerId).collection("notifications").document().set(notificationData);
+                        }
+                    });
+        }
+
+        // Helper to format profile map
+        private HashMap<String, Object> getProfileMap() {
+            return new HashMap<String, Object>() {{
+                put("name", currentProfile.getName());
+                put("email", currentProfile.getEmail());
+                put("phone", currentProfile.getPhoneNumber());
+            }};
         }
 
         private void deleteNotification(String notifId) {

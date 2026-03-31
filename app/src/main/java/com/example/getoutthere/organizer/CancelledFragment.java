@@ -1,39 +1,39 @@
 package com.example.getoutthere.organizer;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.getoutthere.R;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link CancelledFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class CancelledFragment extends Fragment {
 
-    // Renamed parameter argument to match eventId
     private static final String ARG_EVENT_ID = "eventId";
-
-    // Event ID parameter
     private String eventId;
 
-    public CancelledFragment() {
-        // Required empty public constructor
-    }
+    private FirebaseFirestore db;
+    private EntrantAdapter adapter;
+    private List<Map<String, String>> cancelledEntrants = new ArrayList<>();
+    private RecyclerView rvCancelled;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param eventId The ID of the event to display cancelled entrants for.
-     * @return A new instance of fragment CancelledFragment.
-     */
+    public CancelledFragment() {}
+
     public static CancelledFragment newInstance(String eventId) {
         CancelledFragment fragment = new CancelledFragment();
         Bundle args = new Bundle();
@@ -48,12 +48,52 @@ public class CancelledFragment extends Fragment {
         if (getArguments() != null) {
             eventId = getArguments().getString(ARG_EVENT_ID);
         }
+        db = FirebaseFirestore.getInstance();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_cancelled, container, false);
+        View view = inflater.inflate(R.layout.fragment_cancelled, container, false);
+
+        rvCancelled = view.findViewById(R.id.rvCancelled);
+        rvCancelled.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        adapter = new EntrantAdapter(cancelledEntrants);
+        rvCancelled.setAdapter(adapter);
+
+        fetchCancelledEntrants();
+
+        return view;
+    }
+
+    private void fetchCancelledEntrants() {
+        if (eventId == null) return;
+
+        // Listens for anyone with the status "Cancelled"
+        db.collection("events")
+                .document(eventId)
+                .collection("waitingList")
+                .whereEqualTo("status", "Cancelled")
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Log.e("CancelledFragment", "Listen failed.", error);
+                        return;
+                    }
+
+                    cancelledEntrants.clear();
+                    if (value != null) {
+                        for (QueryDocumentSnapshot doc : value) {
+                            Map<String, String> entrant = new HashMap<>();
+                            entrant.put("deviceId", doc.getId());
+                            entrant.put("name", doc.getString("name"));
+                            entrant.put("email", doc.getString("email"));
+                            entrant.put("phone", doc.getString("phone"));
+                            entrant.put("status", doc.getString("status"));
+                            cancelledEntrants.add(entrant);
+                        }
+                    }
+                    adapter.notifyDataSetChanged();
+                });
     }
 }
