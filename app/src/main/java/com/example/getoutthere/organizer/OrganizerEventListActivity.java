@@ -5,9 +5,17 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
 import com.example.getoutthere.R;
 import com.example.getoutthere.event.Event;
+import com.example.getoutthere.navigation.NavBottomHelper;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
@@ -41,7 +49,14 @@ public class OrganizerEventListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_organizer_event_list);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
         listView = findViewById(R.id.organizerEventListView);
         String currentUserId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -72,5 +87,9 @@ public class OrganizerEventListActivity extends AppCompatActivity {
             intent.putExtra("eventId", selectedEvent.getId());
             startActivity(intent);
         });
+
+
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNavigation);
+        NavBottomHelper.setupBottomNav(this, bottomNav, R.id.nav_manage_events);
     }
 }

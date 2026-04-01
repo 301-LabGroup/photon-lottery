@@ -27,7 +27,7 @@ public class NavBottomHelper {
 
             if (itemId == R.id.nav_home) {
                 intent = new Intent(activity, EventListActivity.class);
-            } else if (itemId == R.id.nav_my_events) {
+            } else if (itemId == R.id.nav_manage_events) {
                 intent = new Intent(activity, OrganizerEventListActivity.class);
             } else if (itemId == R.id.nav_history) {
                 intent = new Intent(activity, EventHistory.class);

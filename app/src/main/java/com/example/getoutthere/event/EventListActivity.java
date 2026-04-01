@@ -2,7 +2,6 @@ package com.example.getoutthere.event;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import androidx.activity.EdgeToEdge;
@@ -38,9 +37,12 @@ import java.util.List;
 public class EventListActivity extends AppCompatActivity {
 
     private ListView listView;
-    private List<Event> events = new ArrayList<>();
-    private List<String> eventNames = new ArrayList<>();
+    private final List<Event> events = new ArrayList<>();
+
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    private EventDiscoverAdapter adapter;
+
 
     /**
      * Initializes the Activity, fetches the collection of events from Firestore,
@@ -65,23 +67,23 @@ public class EventListActivity extends AppCompatActivity {
         });
 
         listView = findViewById(R.id.listOfEvents);
+        adapter = new EventDiscoverAdapter(this, events);
+        listView.setAdapter(adapter);
 
-        // Fetch events from Firestore
+        // fetch event from db
         db.collection("events").get().addOnSuccessListener(queryDocumentSnapshots -> {
             events.clear();
-            eventNames.clear();
+
             for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                 Event event = doc.toObject(Event.class);
                 event.setId(doc.getId());
                 events.add(event);
-                eventNames.add(event.getName());
             }
 
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.item_history_row, eventNames);
-            listView.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
         });
 
-        // On click, go to EventDetailsActivity
+        // click on event to open event details
         listView.setOnItemClickListener((parent, view, position, id) -> {
             Event event = events.get(position);
             Intent intent = new Intent(EventListActivity.this, EventDetailsActivity.class);

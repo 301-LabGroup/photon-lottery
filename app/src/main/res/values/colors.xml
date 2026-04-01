@@ -9,4 +9,14 @@
     <color name="purple">#808080</color>
     <color name="navBackground">#1C1D21</color>
     <color name="background">#0A0C10</color>
+    <color name="sepBackground">#16151A</color>
+    <color name="greyAccent">#C7C9CC</color>
+    <color name="textHint">#7a7d81</color>
+    <color name="success">#5BF1C4</color>
+    <color name="error">#F15B88</color>
+    <color name="status">#F1C45B</color>
+    <color name="accent">#5B88F1</color>
+    <color name="glass">#33000000</color>
+    <color name="glassBorder">#33FFFFFF</color>
+
 </resources>
