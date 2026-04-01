@@ -40,7 +40,7 @@ public class EventDiscoverAdapter extends ArrayAdapter<Event> {
         ImageView imgPoster = view.findViewById(R.id.imgPoster);
         TextView textDay = view.findViewById(R.id.textDay);
         TextView textMonth = view.findViewById(R.id.textMonth);
-        TextView textPrice = view.findViewById(R.id.textPrice);
+        TextView textFee = view.findViewById(R.id.textFee);
         TextView textName = view.findViewById(R.id.textName);
         TextView textAddress = view.findViewById(R.id.textAddress);
 
@@ -51,12 +51,12 @@ public class EventDiscoverAdapter extends ArrayAdapter<Event> {
             // Address
             textAddress.setText(event.getAddress() != null ? event.getAddress() : "Location TBA");
 
-            // Price
+            // Fee
             if (event.getSignupFee() <= 0) {
-                textPrice.setText("Free");
+                textFee.setText("Free");
             } else {
                 NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.getDefault());
-                textPrice.setText(currencyFormat.format(event.getSignupFee()));
+                textFee.setText(currencyFormat.format(event.getSignupFee()));
             }
 
             // Date

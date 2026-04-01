@@ -57,7 +57,7 @@
                             android:id="@+id/textDay"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="21"
+                            android:text="15"
                             android:textColor="@android:color/white"
                             android:textSize="24sp"
                             android:textStyle="bold" />
@@ -66,7 +66,7 @@
                             android:id="@+id/textMonth"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="DEC"
+                            android:text="APR"
                             android:textColor="@android:color/white"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -78,7 +78,7 @@
                     android:layout_weight="1" />
 
                 <TextView
-                    android:id="@+id/textPrice"
+                    android:id="@+id/textFee"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="$20"

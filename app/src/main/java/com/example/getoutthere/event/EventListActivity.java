@@ -46,7 +46,7 @@ public class EventListActivity extends AppCompatActivity {
 
     /**
      * Initializes the Activity, fetches the collection of events from Firestore,
-     * maps them to the local lists, and binds the data to the ListView via an ArrayAdapter.
+     * maps them to the local lists, and binds the data to the ListView via a custom EventDiscoverAdapter.
      *
      * @param savedInstanceState If the activity is being re-initialized after previously being
      * shut down then this Bundle contains the data it most recently
