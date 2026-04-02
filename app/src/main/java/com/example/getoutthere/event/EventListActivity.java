@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 import androidx.activity.EdgeToEdge;
@@ -70,6 +71,9 @@ public class EventListActivity extends AppCompatActivity {
         EditText searchInput = findViewById(R.id.searchInput);
         Button searchButton = findViewById(R.id.searchButton);
 
+        // The following code is from Anthropic, Claude, "Fix event click after search returning wrong event in EventListActivity", 2026-04-02
+        final List<Event>[] displayedEvents = new List[]{events};
+
         searchButton.setOnClickListener(v -> {
             String query = searchInput.getText().toString().toLowerCase().trim();
             List<Event> filtered = new ArrayList<>();
@@ -78,9 +82,32 @@ public class EventListActivity extends AppCompatActivity {
                     filtered.add(e);
                 }
             }
+            displayedEvents[0] = filtered;
             EventAdapter filteredAdapter = new EventAdapter(this, filtered);
             listView.setAdapter(filteredAdapter);
         });
+
+
+//        // The following code is from Anthropic, Claude, "Add a filter button fragment to EventListActivity", 2026-04-01
+//        ImageButton filterButton = findViewById(R.id.filterButton);
+//        filterButton.setOnClickListener(v -> {
+//            EventFilterFragment filterFragment = new EventFilterFragment();
+//            filterFragment.setFilterListener((category, startDate, endDate, location) -> {
+//                // Filter your events list here
+//                List<Event> filtered = new ArrayList<>(events);
+//
+//                if (!category.equals("All")) {
+//                    filtered.removeIf(e -> !e.getCategory().equalsIgnoreCase(category));
+//                }
+//                if (!location.isEmpty()) {
+//                    filtered.removeIf(e -> !e.getAddress().toLowerCase().contains(location.toLowerCase()));
+//                }
+//
+//                EventAdapter filteredAdapter = new EventAdapter(this, filtered);
+//                listView.setAdapter(filteredAdapter);
+//            });
+//            filterFragment.show(getSupportFragmentManager(), "EventFilterFragment");
+//        });
 
         // Fetch events from Firestore
         db.collection("events").get().addOnSuccessListener(queryDocumentSnapshots -> {
@@ -98,7 +125,7 @@ public class EventListActivity extends AppCompatActivity {
 
         // On click, go to EventDetailsActivity
         listView.setOnItemClickListener((parent, view, position, id) -> {
-            Event event = events.get(position);
+            Event event = displayedEvents[0].get(position);
             Intent intent = new Intent(EventListActivity.this, EventDetailsActivity.class);
             intent.putExtra("eventId", event.getId());
             startActivity(intent);

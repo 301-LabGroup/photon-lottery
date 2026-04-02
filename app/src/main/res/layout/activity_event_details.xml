@@ -40,6 +40,23 @@
                 android:paddingBottom="20dp"/>
 
             <TextView
+                android:id="@+id/EventDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:paddingBottom="12dp"/>
+
+            <TextView
+                android:id="@+id/EventType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:background="@color/grey"
+                android:paddingBottom="12dp"/>
+
+            <TextView
                 android:id="@+id/EventDateRange"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

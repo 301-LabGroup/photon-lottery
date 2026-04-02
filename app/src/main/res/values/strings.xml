@@ -6,4 +6,12 @@
     <string name="lt"><![CDATA[<]]></string>
     <string name="notify_all_applicants">Notify All Applicants</string>
     <string name="backButton">⬅️ Back</string>
+
+    <string-array name="event_types">
+        <item>Entertainment</item>
+        <item>Professional</item>
+        <item>Networking</item>
+        <item>Dining</item>
+        <item>Charity</item>
+    </string-array>
 </resources>

@@ -28,6 +28,8 @@ import com.google.firebase.Timestamp;
 
 import java.util.Locale;
 import java.util.Calendar;
+import android.widget.AutoCompleteTextView;
+import android.widget.ArrayAdapter;
 
 /**
  * Allows organizers to create a new event.
@@ -62,6 +64,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
     private EditText capacityInput;
     private EditText feeInput;
     private EditText waitlistLimitInput;
+    private AutoCompleteTextView eventTypeInput;
 
     // Buttons
 
@@ -132,6 +135,15 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         uploadPosterButton = findViewById(R.id.uploadPosterButton);
         createEventButton = findViewById(R.id.createEventButton);
 
+        // The following code is from Anthropic, Claude, "Create Event Android XML layout with event type dropdown", 2026-04-01
+        eventTypeInput = findViewById(R.id.eventTypeInput);
+        ArrayAdapter<CharSequence> eventTypeAdapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.event_types,
+                android.R.layout.simple_dropdown_item_1line
+        );
+        eventTypeInput.setAdapter(eventTypeAdapter);
+
         // date pickers
         startDateInput.setKeyListener(null);
         endDateInput.setKeyListener(null);
@@ -192,6 +204,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         String capacityText = capacityInput.getText().toString().trim();
         String feeText = feeInput.getText().toString().trim();
         String waitlistLimitText = waitlistLimitInput.getText().toString().trim();
+        String eventType = eventTypeInput.getText().toString().trim();
 
         if (name.isEmpty()) {
             nameInput.setError("Event name is required");
@@ -253,6 +266,12 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
             return;
         }
 
+        if (eventType.isEmpty()) {
+            eventTypeInput.setError("Event type is required");
+            eventTypeInput.requestFocus();
+            return;
+        }
+
         int capacity;
         double signupFee;
         Integer waitlistLimit = null;
@@ -311,6 +330,7 @@ public class OrganizerCreateEventActivity extends AppCompatActivity {
         event.setCapacity(capacity);
         event.setSignupFee(signupFee);
         event.setWaitlistLimit(waitlistLimit);
+        event.setEventType(eventType);
 
         setSavingState(true);
 
