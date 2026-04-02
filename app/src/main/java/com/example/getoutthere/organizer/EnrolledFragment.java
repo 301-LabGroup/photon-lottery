@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,6 +22,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import android.content.Intent;
+import android.net.Uri;
+import androidx.core.content.FileProvider;
+import java.io.File;
+import java.io.FileWriter;
 
 /**
  * Fragment displaying the enrolled entrants for an event.
@@ -78,6 +85,9 @@ public class EnrolledFragment extends Fragment {
         // Fetch the enrolled entrants from Firebase
         fetchEnrolledEntrants();
 
+        Button btnExportCsv = view.findViewById(R.id.btnExportCsv);
+        btnExportCsv.setOnClickListener(v -> previewAndExportCSV());
+
         return view;
     }
 
@@ -112,5 +122,76 @@ public class EnrolledFragment extends Fragment {
                     }
                     adapter.notifyDataSetChanged();
                 });
+    }
+
+    // Generate the CSV and show the preview
+    private void previewAndExportCSV() {
+        if (enrolledEntrants == null || enrolledEntrants.isEmpty()) {
+            Toast.makeText(getContext(), "No enrolled entrants to export", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Build the CSV string
+        StringBuilder csvData = new StringBuilder();
+        csvData.append("Name,Email\n");
+
+        for (Map<String, String> entrant : enrolledEntrants) {
+            String name = entrant.get("name") != null ? entrant.get("name").replace(",", "") : "Unknown";
+            String email = entrant.get("email") != null ? entrant.get("email").replace(",", "") : "No Email";
+
+            csvData.append(name).append(",").append(email).append("\n");
+        }
+
+        // Create the Preview Dialog
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(requireContext());
+        builder.setTitle("CSV Preview");
+
+        // Use a ScrollView so large lists don't run off the screen
+        android.widget.ScrollView scrollView = new android.widget.ScrollView(getContext());
+        android.widget.TextView tvPreview = new android.widget.TextView(getContext());
+
+        tvPreview.setText(csvData.toString());
+        tvPreview.setPadding(48, 32, 48, 32);
+        tvPreview.setTextSize(14f);
+        // Use a monospace font so the CSV columns line up neatly
+        tvPreview.setTypeface(android.graphics.Typeface.MONOSPACE);
+
+        scrollView.addView(tvPreview);
+        builder.setView(scrollView);
+
+        // Add the Share/Export button
+        builder.setPositiveButton("Share File", (dialog, which) -> {
+            shareCSVFile(csvData.toString()); // Call the share method if they approve
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+        builder.show();
+    }
+
+    private void shareCSVFile(String csvContent) {
+        try {
+            // Save to a temporary file in the app's cache
+            File file = new File(requireContext().getCacheDir(), "enrolled_entrants.csv");
+            FileWriter writer = new FileWriter(file);
+            writer.write(csvContent);
+            writer.close();
+
+            // Generate a secure URI using the FileProvider
+            Uri path = FileProvider.getUriForFile(requireContext(), requireContext().getPackageName() + ".fileprovider", file);
+
+            // Trigger the Android Share Menu
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/csv");
+            intent.putExtra(Intent.EXTRA_SUBJECT, "Enrolled Entrants List");
+            intent.putExtra(Intent.EXTRA_STREAM, path);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            startActivity(Intent.createChooser(intent, "Share CSV File"));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Error sharing CSV: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 }
