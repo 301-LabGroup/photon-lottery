@@ -115,8 +115,7 @@
                 android:background="@drawable/bg_arrow_circle"
                 android:padding="10dp"
                 android:src="@drawable/ic_arrow_forward"
-                app:tint="@color/white"
-                android:contentDescription="Open event details" />
+                app:tint="@color/white"/>
 
         </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

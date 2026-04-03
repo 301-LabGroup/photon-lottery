@@ -180,7 +180,6 @@
                 android:layout_gravity="bottom|end"
                 android:layout_margin="16dp"
                 android:background="@drawable/bg_arrow_circle"
-                android:contentDescription="Open event details"
                 android:padding="10dp"
                 android:src="@drawable/ic_arrow_forward"
                 app:tint="@color/white" />
