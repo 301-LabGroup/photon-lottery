@@ -167,4 +167,51 @@ public class EventListActivity extends AppCompatActivity {
 
         adapter.notifyDataSetChanged();
     }
+
+    /**
+     * Applies all active filters and the current search query together against
+     * the full events list, then updates the ListView adapter with the results.
+     *
+     * @param query the current search string entered by the user
+     */
+    // The following code is from Anthropic, Claude, "Add filter fragment with eventType, minCapacity, and date range to EventListActivity", 2026-04-02
+    private void applyFiltersAndSearch(String query) {
+        List<Event> result = new ArrayList<>();
+
+        for (Event e : events) {
+            // Search filter
+            if (!query.isEmpty()) {
+                if (!e.getName().toLowerCase().contains(query) &&
+                        !e.getDescription().toLowerCase().contains(query)) {
+                    continue;
+                }
+            }
+
+            // Event type filter
+            if (activeEventType != null && !activeEventType.equals("All")) {
+                if (e.getEventType() == null || !e.getEventType().equalsIgnoreCase(activeEventType)) {
+                    continue;
+                }
+            }
+
+            // Minimum capacity filter
+            if (e.getCapacity() < activeMinCapacity) {
+                continue;
+            }
+
+            // Start date range filter
+            if (e.getStartDate() != null) {
+                long startMillis = e.getStartDate().toDate().getTime();
+                if (startMillis < activeMinStartDate || startMillis > activeMaxStartDate) {
+                    continue;
+                }
+            }
+
+            result.add(e);
+        }
+
+        displayedEvents[0] = result;
+        EventAdapter adapter = new EventAdapter(this, result);
+        listView.setAdapter(adapter);
+    }
 }

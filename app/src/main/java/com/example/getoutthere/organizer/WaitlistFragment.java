@@ -152,11 +152,8 @@ public class WaitlistFragment extends Fragment {
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                         String deviceId = doc.getId();
 
-                        // status code not integrated correctly so,
-                        // If status exists and is not waiting, skip it.
-                        // If status does NOT exist, still include it so old data still works.
                         String status = doc.getString("status");
-                        if (status != null && !status.equals("waiting")) {
+                        if (status == null || !status.equals("Waitlist")) {
                             continue;
                         }
 
@@ -192,6 +189,7 @@ public class WaitlistFragment extends Fragment {
                 .get()
                 .addOnSuccessListener(profileDoc -> {
                     if (index < 0 || index >= waitlistEntrants.size()) return;
+                    if (!waitlistEntrants.get(index).get("deviceId").equals(deviceId)) return;
 
                     Map<String, String> entrant = waitlistEntrants.get(index);
 
@@ -223,6 +221,7 @@ public class WaitlistFragment extends Fragment {
                 })
                 .addOnFailureListener(e -> {
                     if (index < 0 || index >= waitlistEntrants.size()) return;
+                    if (!waitlistEntrants.get(index).get("deviceId").equals(deviceId)) return;
 
                     Map<String, String> entrant = waitlistEntrants.get(index);
                     entrant.put("name", "Unknown user");
@@ -231,43 +230,102 @@ public class WaitlistFragment extends Fragment {
     }
 
     /**
-     * Randomly samples entrants from the waitlist and updates their status to "invited".
+     * Calculates remaining capacity by checking existing invites/enrollments - randomly looks for replacements from waitlist
+     * Sends notifications to participants if selected/not selected
      */
     private void drawLottery() {
-        if (waitlistEntrants.isEmpty()) {
+        if (waitlistEntrants.isEmpty()) {       // no entrants on waitlist
             Toast.makeText(getContext(), "No entrants on waitlist", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (eventCapacity == 0) {
-            Toast.makeText(getContext(), "Event capacity not loaded yet", Toast.LENGTH_SHORT).show();
+        if (eventCapacity == 0) {       // if cant load capacity
+            Toast.makeText(getContext(), "Event capacity not loaded", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Use LotteryUtils to randomly sample entrants based on event capacity
-        List<Map<String, String>> selected = LotteryUtils.drawLottery(waitlistEntrants, eventCapacity);
+        db.collection("events").document(eventId).get().addOnSuccessListener(eventSnapshot -> {
+            String eventName = eventSnapshot.getString("name");
+            if (eventName == null) eventName = "the event";
+            final String finalEventName = eventName;
 
-        // Update status to "invited" in Firestore for each selected entrant
-        for (Map<String, String> entrant : selected) {
-            String deviceId = entrant.get("deviceId");
-            db.collection("events")
-                    .document(eventId)
-                    .collection("waitingList")
-                    .document(deviceId)
-                    .update("status", "invited")
+            db.collection("events") // See to see how many spots are taken
+                    .document(eventId) // look for event id
+                    .collection("waitingList") // get all entrants in waitlist
+                    .whereIn("status", java.util.Arrays.asList("Invited", "Enrolled")) //see if person is invited/enrolled
+                    .get() // get all entrants
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                        int takenSpots = queryDocumentSnapshots.size();
+                        int availableSpots = eventCapacity - takenSpots; // see whose spots are taken
+
+                        if (availableSpots <= 0) {
+                            Toast.makeText(getContext(), "All invites have been sent or event is full.", Toast.LENGTH_LONG).show(); // all spots are taken
+                            return;
+                        }
+
+                        List<Map<String, String>> selected = LotteryUtils.drawLottery(waitlistEntrants, availableSpots); //  LotteryUtils sampled entrants based ONLY on available spots
+
+                        if (selected.isEmpty()) {
+                            Toast.makeText(getContext(), "No eligible entrants to draw.", Toast.LENGTH_SHORT).show(); // no eligible entrants
+                            return;
+                        }
+
+                        // Create a set of winner IDs
+                        java.util.Set<String> winnerIds = new java.util.HashSet<>();
+                        for (Map<String, String> winner : selected) {
+                            winnerIds.add(winner.get("deviceId"));
+                        }
+
+                        // Go through all entrants on the waitlist
+                        for (Map<String, String> entrant : waitlistEntrants) {
+                            String deviceId = entrant.get("deviceId");
+                            boolean won = winnerIds.contains(deviceId);
+
+                            // Update status to "Invited" or "Not Selected"
+                            String newStatus = won ? "Invited" : "Not Selected";
+                            db.collection("events")
+                                    .document(eventId)
+                                    .collection("waitingList")
+                                    .document(deviceId)
+                                    .update("status", newStatus)
+                                    .addOnFailureListener(e ->
+                                            Toast.makeText(getContext(), "Failed to update status: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+
+
+                            // Send the specific "lottery_invite" notification to the winner
+                            HashMap<String, Object> notificationData = new HashMap<>();
+                            notificationData.put("eventId", eventId);
+
+                            if (won) {
+                                notificationData.put("message", "Congratulations! You were selected for " + finalEventName + ". Please accept or decline.");
+                                notificationData.put("type", "lottery_invite");
+                            } else {
+                                notificationData.put("message", "Sorry, you were not selected for " + finalEventName + ".");
+                                notificationData.put("type", "lottery_loss");
+                            }
+
+                            // Send notification to entrant profiles
+                            db.collection("profiles")
+                                    .document(deviceId)
+                                    .collection("notifications")
+                                    .add(notificationData);
+                        }
+
+                        Toast.makeText(getContext(), selected.size() + " replacement entrant(s) selected!", Toast.LENGTH_SHORT).show(); // successfully updated status
+                        loadWaitlistEntrants(); //update list
+
+                    })
                     .addOnFailureListener(e ->
-                            Toast.makeText(getContext(), "Failed to update status: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-        }
+                            Toast.makeText(getContext(), "Failed to verify capacity: " + e.getMessage(), Toast.LENGTH_SHORT).show() //verify fails
+                    );
+        });
 
-        Toast.makeText(getContext(), selected.size() + " entrants selected!", Toast.LENGTH_SHORT).show();
-
-        // Reload list to reflect changes
-        loadWaitlistEntrants();
     }
 
     /**
      * Shows a dialog for the organizer to type a message,
-     * then sends a notification to all entrants with status "waiting".
+     * then sends a notification to all entrants with status "Waitlist".
      */
     private void notifyWaitlistEntrants() {
         if (waitlistEntrants.isEmpty()) {

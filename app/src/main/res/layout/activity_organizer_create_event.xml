@@ -86,6 +86,35 @@
                 android:inputType="textCapWords" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- The following code is from Anthropic, Claude, "Create Event Android XML layout with event type dropdown", 2026-04-01 -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/eventTypeInputLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="Event Type"
+            android:textColorHint="#B0B0B0"
+            app:boxBackgroundColor="#1E1E1E"
+            app:boxStrokeColor="#59A91E"
+            app:boxStrokeWidth="1dp"
+            app:hintTextColor="#59A91E"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/nameInputLayout">
+
+            <AutoCompleteTextView
+                android:id="@+id/eventTypeInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:inputType="none"
+                android:focusable="false"
+                android:cursorVisible="false"
+                android:saveEnabled="false"
+                android:entries="@array/event_types" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/descriptionInputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -100,7 +129,7 @@
             app:hintTextColor="#59A91E"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/nameInputLayout">
+            app:layout_constraintTop_toBottomOf="@id/eventTypeInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/descriptionInput"

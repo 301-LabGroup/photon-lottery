@@ -37,8 +37,24 @@
                 android:textColor="@color/white"
                 android:textSize="24sp"
                 android:textStyle="bold"
-
                 android:paddingBottom="20dp"/>
+
+            <TextView
+                android:id="@+id/EventDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:paddingBottom="12dp"/>
+
+            <TextView
+                android:id="@+id/EventType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:background="@color/grey"
+                android:paddingBottom="12dp"/>
 
             <TextView
                 android:id="@+id/EventDateRange"
@@ -83,7 +99,19 @@
                 android:textSize="16sp"
                 android:textColor="@color/white"
                 android:background="@color/grey"
-                android:paddingBottom="24dp"/>
+                android:paddingBottom="16dp"/>
+
+            <TextView
+                android:id="@+id/btnLotteryInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ℹ️ How does the lottery work?"
+                android:textColor="#4DA6FF"
+                android:textSize="14sp"
+                android:paddingBottom="16dp"
+                android:layout_gravity="center_horizontal"
+                android:clickable="true"
+                android:focusable="true"/>
 
             <Button
                 android:id="@+id/btnToggleWaitingList"
@@ -91,6 +119,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:textColor="@android:color/white" />
+
+            <Button
+                android:id="@+id/btnViewComments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="View Comments" />
+
         </LinearLayout>
     </ScrollView>
 

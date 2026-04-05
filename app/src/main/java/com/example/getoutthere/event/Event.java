@@ -29,8 +29,8 @@ public class Event {
     private Timestamp registrationStart;
     private Timestamp registrationEnd;
 
-    private int capacity;
     private int currentWaitlistCount;
+    private int capacity;
     private Integer waitlistLimit;
 
     private double signupFee;
@@ -38,6 +38,8 @@ public class Event {
     private String posterUrl;
     private String qrCodeContent;
     private String status;
+
+    private String eventType;
 
     /**
      * Default constructor required for Firebase Firestore serialization.
@@ -247,4 +249,18 @@ public class Event {
      * @param status The status string.
      */
     public void setStatus(String status) { this.status = status; }
+
+    // The following code is from Anthropic, Claude, "Create Event Android XML layout with event type dropdown", 2026-04-01
+
+    /**
+     * Gets the type/category of the event.
+     * @return The event type (e.g., Entertainment, Professional, Networking, Dining, Charity).
+     */
+    public String getEventType() { return eventType; }
+
+    /**
+     * Sets the type/category of the event.
+     * @param eventType The string representing the event type.
+     */
+    public void setEventType(String eventType) { this.eventType = eventType; }
 }
