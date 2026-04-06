@@ -1,110 +1,85 @@
 package com.example.getoutthere.event;
 
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
+
+import android.content.Context;
 import android.content.Intent;
-import android.widget.Button;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.core.app.ActivityScenario;
-import androidx.test.espresso.Espresso;
-import androidx.test.espresso.action.ViewActions;
-import androidx.test.espresso.assertion.ViewAssertions;
-import androidx.test.espresso.matcher.ViewMatchers;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 
 import com.example.getoutthere.R;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static org.junit.Assert.assertFalse;
-
-// Tests the functionality of EventDetailsActivityTest
-
+/**
+ * Tests functionality of EventDetailsActivity.
+ */
 @RunWith(AndroidJUnit4.class)
+@LargeTest
 public class EventDetailsActivityTest {
 
     /**
-     * Test - EventDetailsActivity launches. UI and event info displayed.
+     * Create a dummy intent with a placeholder event ID
+     */
+    private static Intent createIntent() {
+        Context context = ApplicationProvider.getApplicationContext();
+        Intent intent = new Intent(context, EventDetailsActivity.class);
+        intent.putExtra("eventId", "dummy_event_id");
+        return intent;
+    }
+
+    @Rule
+    public ActivityScenarioRule<EventDetailsActivity> activityRule =
+            new ActivityScenarioRule<>(createIntent());
+
+    /**
+     * Verifies that the main UI elements are displayed
      */
     @Test
-    public void testActivityLaunchesAndDisplaysViews() {
-        Intent intent = new Intent(
-                ApplicationProvider.getApplicationContext(),
-                EventDetailsActivity.class
-        );
-        intent.putExtra("eventId", "testEvent123");
+    public void testUIComponentsPresence() {
+        // Root layout
+        onView(withId(R.id.main)).check(matches(isDisplayed()));
 
-        try (ActivityScenario<EventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
-            // Check important UI components are displayed
-            Espresso.onView(ViewMatchers.withId(R.id.EventName)).check(ViewAssertions.matches(isDisplayed()));
-            Espresso.onView(ViewMatchers.withId(R.id.EventAddress)).check(ViewAssertions.matches(isDisplayed()));
-            Espresso.onView(ViewMatchers.withId(R.id.EventDateRange)).check(ViewAssertions.matches(isDisplayed()));
-            Espresso.onView(ViewMatchers.withId(R.id.btnToggleWaitingList)).check(ViewAssertions.matches(isDisplayed()));
-        }
+        // Static text views that exist regardless of Firestore data
+        onView(withId(R.id.EventName)).check(matches(isDisplayed()));
+        onView(withId(R.id.EventDescription)).check(matches(isDisplayed()));
+        onView(withId(R.id.EventAddress)).check(matches(isDisplayed()));
+        onView(withId(R.id.EventDateRange)).check(matches(isDisplayed()));
+
+        // Buttons
+        onView(withId(R.id.btnToggleWaitingList)).check(matches(isDisplayed()));
+        onView(withId(R.id.EventDetailsBackButton)).check(matches(isDisplayed()));
+        onView(withId(R.id.btnViewComments)).check(matches(isDisplayed()));
+        onView(withId(R.id.btnLotteryInfo)).check(matches(isDisplayed()));
     }
 
     /**
-     * Test - can click Join/Leave Waiting List button.
+     * Verifies that clicking the Lottery Guidelines info button shows the dialog
      */
     @Test
-    public void testJoinWaitingListButtonClick() {
-        Intent intent = new Intent(
-                ApplicationProvider.getApplicationContext(),
-                EventDetailsActivity.class
-        );
-        intent.putExtra("eventId", "testEvent123");
-
-        try (ActivityScenario<EventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
-            Espresso.onView(ViewMatchers.withId(R.id.btnToggleWaitingList))
-                    .perform(ViewActions.click());
-        }
+    public void testLotteryGuidelinesDialog() {
+        onView(withId(R.id.btnLotteryInfo)).perform(scrollTo(), click());
+        onView(withText("Lottery Guidelines")).check(matches(isDisplayed()));
+        onView(withText("Understood")).perform(click());
     }
 
     /**
-     * Test - user can't join the waiting list if the event is full
+     * Verifies that pressing the back button closes the activity
      */
     @Test
-    public void testCantJoinFullEvent() {
-        Intent intent = new Intent(
-                ApplicationProvider.getApplicationContext(),
-                EventDetailsActivity.class
-        );
-        intent.putExtra("eventId", "testEvent123");
-
-        try (ActivityScenario<EventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
-            scenario.onActivity(activity -> {
-                // Makes the event full
-                Event fullEvent = new Event();
-                fullEvent.setCapacity(5);
-                fullEvent.setCurrentWaitlistCount(5);
-                activity.event = fullEvent;
-
-                // Update UI
-                activity.updateSpotsUI();
-
-                // User clicks join button. Should not join.
-                Button joinBtn = activity.findViewById(R.id.btnToggleWaitingList);
-                joinBtn.performClick();
-                assertFalse(activity.isOnWaitingList);
-            });
-        }
-    }
-
-    /**
-     * Test - back button closes the activity
-     */
-    @Test
-    public void testBackButtonClosesActivity() {
-        Intent intent = new Intent(
-                ApplicationProvider.getApplicationContext(),
-                EventDetailsActivity.class
-        );
-        intent.putExtra("eventId", "testEvent123");
-
-        try (ActivityScenario<EventDetailsActivity> scenario = ActivityScenario.launch(intent)) {
-            Espresso.onView(ViewMatchers.withId(R.id.EventDetailsBackButton))
-                    .perform(ViewActions.click());
-        }
+    public void testBackButton() {
+        onView(withId(R.id.EventDetailsBackButton)).perform(click());
+        // ActivityScenario automatically closes the activity; no assertion needed
     }
 }

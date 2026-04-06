@@ -31,9 +31,6 @@ import java.util.List;
  * Allows users to accept or decline various types of invitations, such as private invites,
  * lottery invites, and co-organizer requests, and handles the respective database updates.
  * </p>
- *
- * Outstanding Issues:
- * - None at the moment.
  */
 
 /**
@@ -43,8 +40,8 @@ import java.util.List;
  */
 public class EntrantNotificationActivity extends AppCompatActivity {
 
-    private RecyclerView rvNotifications;
-    private TextView emptyNotificationText;
+    protected RecyclerView rvNotifications;
+    protected TextView emptyNotificationText;
     private Button btnBack;
 
     private FirebaseFirestore db;

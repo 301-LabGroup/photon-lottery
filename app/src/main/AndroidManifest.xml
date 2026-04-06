@@ -13,7 +13,7 @@
         android:theme="@style/Theme.GetOutThere">
         <activity
             android:name=".organizer.OrganizerEventDetailsActivity"
-            android:exported="false" />
+            android:exported="true" />
         <activity
             android:name=".organizer.OrganizerWaitlistActivity"
             android:exported="false" />
