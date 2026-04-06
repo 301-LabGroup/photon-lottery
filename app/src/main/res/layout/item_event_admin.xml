@@ -104,7 +104,7 @@
                 android:contentDescription="Delete Action"
                 android:stateListAnimator="@null"
                 app:backgroundTint="@color/glass"
-                app:cornerRadius="24dp"
+                app:cornerRadius="999dp"
                 app:elevation="0dp"
                 app:icon="@drawable/ic_delete"
                 app:iconSize="24dp"
