@@ -1,5 +1,6 @@
 package com.example.getoutthere.event;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
@@ -25,8 +26,11 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.w3c.dom.Text;
+
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -45,7 +49,10 @@ import java.util.Objects;
 public class EventDetailsActivity extends AppCompatActivity {
     private TextView eventName, eventAddress, eventDateRange, eventCapacity, eventFee, eventDrawDate, eventDescription, eventType;
     private Button btnToggleWaitingList, btnViewComments;
+    private TextView tvPrimaryOrganizer;
 
+    private LinearLayout layoutCoOrganizers;
+    private TextView labelCoOrganizers;
     private FrameLayout backButton;
 
     private String eventId;
@@ -108,6 +115,8 @@ public class EventDetailsActivity extends AppCompatActivity {
         // Fetch event from Firestore
         db.collection("events").document(eventId).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
+
+
                 event = documentSnapshot.toObject(Event.class);
                 event.setId(documentSnapshot.getId());
 
@@ -141,6 +150,12 @@ public class EventDetailsActivity extends AppCompatActivity {
                 if (event.getDrawDate() != null) {
                     String drawStr = new SimpleDateFormat("MM/dd/yyyy").format(event.getDrawDate().toDate());
                     eventDrawDate.setText("Draws on " + drawStr);
+                }
+
+
+                //Display primary organizer name
+                if (eventId != null) {
+                 displayTeamData(this,event,tvPrimaryOrganizer, labelCoOrganizers,layoutCoOrganizers);
                 }
 
                 // Spots available
@@ -225,81 +240,13 @@ public class EventDetailsActivity extends AppCompatActivity {
         // View comments fragment button
         btnViewComments = findViewById(R.id.btnViewComments);
         btnViewComments.setOnClickListener(v -> showCommentsDialog());
-    }
+    
 
-    /**
-     * Checks for GPS permissions and fetches the device's latitude/longitude before joining.
-     */
-    private void fetchLocationAndJoin() {
-        if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            // Request permission if we don't have it
-            androidx.core.app.ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 100);
-            return;
-        }
 
-        com.google.android.gms.location.FusedLocationProviderClient fusedLocationClient = com.google.android.gms.location.LocationServices.getFusedLocationProviderClient(this);
-        fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
-            if (location != null) {
-                joinWaitingList(location.getLatitude(), location.getLongitude());
-            } else {
-                Toast.makeText(this, "Unable to get location. Please ensure GPS is enabled.", Toast.LENGTH_SHORT).show();
-            }
-        }).addOnFailureListener(e -> Toast.makeText(this, "Failed to get location.", Toast.LENGTH_SHORT).show());
-    }
-
-    /**
-     * Handles the result of the location permission request.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @androidx.annotation.NonNull String[] permissions, @androidx.annotation.NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 100 && grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            fetchLocationAndJoin(); // Permission granted, try joining again!
-        } else {
-            Toast.makeText(this, "Location permission is required to join this event.", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    /**
-     * Executes the database write to join the waitlist, attaching coordinates if they exist.
-     */
-    private void joinWaitingList(Double latitude, Double longitude) {
-        HashMap<String, Object> waitlistData = new HashMap<>();
-        waitlistData.put("name", entrant.getName());
-        waitlistData.put("email", entrant.getEmail());
-        waitlistData.put("phone", entrant.getPhoneNumber());
-        waitlistData.put("status", "Waitlist");
-
-        // Add coordinates if they were provided
-        if (latitude != null && longitude != null) {
-            waitlistData.put("latitude", latitude);
-            waitlistData.put("longitude", longitude);
-        }
-
-        db.collection("events")
-                .document(event.getId())
-                .collection("waitingList")
-                .document(entrant.getDeviceId())
-                .set(waitlistData)
-                .addOnSuccessListener(aVoid -> {
-                    isOnWaitingList = true;
-
-                    db.collection("events")
-                            .document(event.getId())
-                            .update("currentWaitlistCount", FieldValue.increment(1))
-                            .addOnSuccessListener(unused -> {
-                                event.setCurrentWaitlistCount(event.getCurrentWaitlistCount() + 1);
-                                updateSpotsUI();
-                                updateToggleButton();
-                                Toast.makeText(EventDetailsActivity.this, "Joined waiting list!", Toast.LENGTH_SHORT).show();
-                            })
-                            .addOnFailureListener(e -> {
-                                isOnWaitingList = false;
-                                Toast.makeText(EventDetailsActivity.this, "Failed to update waitlist count", Toast.LENGTH_SHORT).show();
-                            });
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(EventDetailsActivity.this, "Failed to join waiting list", Toast.LENGTH_SHORT).show());
+        // Team displays
+        tvPrimaryOrganizer = findViewById(R.id.tvPrimaryOrganizer);
+        layoutCoOrganizers = findViewById(R.id.layoutCoOrganizers);
+        labelCoOrganizers = findViewById(R.id.labelCoOrganizers);
     }
 
     /**
@@ -506,4 +453,70 @@ public class EventDetailsActivity extends AppCompatActivity {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
     }
+
+    /**
+     * Displays team data the corresponding details.
+     * @param tvPrimaryOrganizer
+     * @param labelCoOrganizers
+     */
+    public static void displayTeamData(AppCompatActivity activity, Event event, TextView tvPrimaryOrganizer, TextView labelCoOrganizers, LinearLayout layoutCoOrganizers) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // immediately clear the layout to prevent ghosting from previous calls
+        layoutCoOrganizers.removeAllViews();
+        labelCoOrganizers.setVisibility(View.GONE);
+
+        if (event.getOrganizerId() != null) {
+            db.collection("profiles").document(event.getOrganizerId()).get()
+                    .addOnSuccessListener(profileDoc -> {
+                        if (profileDoc.exists()) {
+                            tvPrimaryOrganizer.setText(profileDoc.getString("name"));
+                        } else {
+                            tvPrimaryOrganizer.setText("Unknown Host");
+                        }
+                    });
+
+            List<String> coOrgIds = event.getCoOrganizerIds();
+            if (coOrgIds != null && !coOrgIds.isEmpty()) {
+                labelCoOrganizers.setVisibility(View.VISIBLE);
+
+                for (String id : coOrgIds) {
+                    db.collection("profiles").document(id).get()
+                            .addOnSuccessListener(profileDoc -> {
+                                if (profileDoc.exists()) {
+                                    String name = profileDoc.getString("name");
+
+                                    // 2. ensure we don't add the same name twice
+
+                                    boolean alreadyExists = false;
+                                    for (int i = 0; i < layoutCoOrganizers.getChildCount(); i++) {
+                                        View child = layoutCoOrganizers.getChildAt(i);
+                                        if (child instanceof TextView && ((TextView) child).getText().equals(name)) {
+                                            alreadyExists = true;
+                                            break;
+                                        }
+                                    }
+
+                                    if (!alreadyExists) {
+                                        TextView bubble = new TextView(activity);
+                                        bubble.setText(name);
+                                        bubble.setTextColor(activity.getColor(R.color.white));
+                                        bubble.setPadding(30, 12, 30, 12);
+                                        bubble.setTextSize(14f);
+                                        bubble.setBackgroundResource(R.drawable.bg_nav_glass);
+
+                                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                                                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                                        params.setMargins(0, 0, 16, 0);
+                                        bubble.setLayoutParams(params);
+
+                                        layoutCoOrganizers.addView(bubble);
+                                    }
+                                }
+                            });
+                }
+            }
+        }
+    }
+
 }
