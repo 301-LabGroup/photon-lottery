@@ -445,34 +445,33 @@ public class WaitlistFragment extends Fragment {
     }
 
     /**
-     * Pushes the private invite notification and adds the user to the event's waiting list.
+     * Pushes the notification and adds the user to the event's waiting list as Pending.
      */
     private void sendPrivateInvite(String targetDeviceId, String eventId, String eventName, DocumentSnapshot userDoc) {
-        // 1. Send the Notification to the user's profile
+        // Send the Notification to the user
         HashMap<String, Object> notificationData = new HashMap<>();
         notificationData.put("eventId", eventId);
-        notificationData.put("message", "You have been added to the waitlist for a private event: " + eventName + "! Keep an eye out for the lottery draw.");
-        notificationData.put("type", "private_waitlist_addition"); // Changed so it doesn't trigger an accept/decline button
+        notificationData.put("message", "You have been invited to join the waitlist for a private event: " + eventName + "! Please accept or decline.");
+        notificationData.put("type", "private_invite");
 
         db.collection("profiles")
                 .document(targetDeviceId)
                 .collection("notifications")
                 .add(notificationData);
 
-        // 2. Add the user to the event's Waitlist collection with the "Waitlist" status
+        // Add the user to the event's Waitlist collection with a "Pending" status
         HashMap<String, Object> waitlistData = new HashMap<>();
-        waitlistData.put("status", "Waitlist"); // <-- CHANGED FROM "Invited" TO "Waitlist"
+        waitlistData.put("status", "Pending");
         waitlistData.put("name", userDoc.getString("name"));
         waitlistData.put("email", userDoc.getString("email"));
         waitlistData.put("phone", userDoc.getString("phone"));
 
-        // We use .set() here instead of .update() because the user isn't currently in the waitlist database!
         db.collection("events")
                 .document(eventId)
                 .collection("waitingList")
                 .document(targetDeviceId)
                 .set(waitlistData)
-                .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "Added to Waitlist successfully!", Toast.LENGTH_SHORT).show())
+                .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "Invite sent to user!", Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to add user to event.", Toast.LENGTH_SHORT).show());
     }
 }
