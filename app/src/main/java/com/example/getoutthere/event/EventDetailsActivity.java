@@ -5,6 +5,7 @@ import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ImageView;
@@ -293,14 +294,23 @@ public class EventDetailsActivity extends AppCompatActivity {
      * Displays an info about the lottery selection criteria
      */
     private void showLotteryCriteriaDialog() {
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Lottery Guidelines") // Set title
-                .setMessage("Selection for this event is processed via a randomized lottery system.\n\n" + //message
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Lottery Guidelines")
+                .setMessage("Selection for this event is processed via a randomized lottery system.\n\n" +
                         "• Joining the waitlist does not guarantee entry.\n" +
                         "• When the draw date occurs, entrants are selected entirely at random up to the event's capacity limit.\n" +
                         "• If selected, you will receive a notification to finalize your enrollment.")
-                .setPositiveButton("Understood", null) // dismiss message
-                .show();
+                .setPositiveButton("Understood", null)
+                .create();
+
+        dialog.show();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(R.drawable.bg_nav_glass);
+        }
+
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)
+                .setTextColor(getResources().getColor(R.color.white));
     }
 
 
@@ -323,124 +333,120 @@ public class EventDetailsActivity extends AppCompatActivity {
      * along with an input field to submit new comments.
      */
     private void showCommentsDialog() {
-        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        androidx.appcompat.app.AlertDialog.Builder builder =
+                new androidx.appcompat.app.AlertDialog.Builder(this);
         builder.setTitle("Event Comments");
 
-        // build the Dialog Layout dynamically
-        LinearLayout mainLayout = new LinearLayout(this);
-        mainLayout.setOrientation(LinearLayout.VERTICAL);
-        mainLayout.setPadding(40, 24, 40, 24);
-
-        // construct scrollable container for comments
-        android.widget.ScrollView scrollView = new android.widget.ScrollView(this);
-        LinearLayout commentsListLayout = new LinearLayout(this);
-        commentsListLayout.setOrientation(LinearLayout.VERTICAL);
-        scrollView.addView(commentsListLayout);
-
-        // weight 1f to makes the scroll view take up all middle space, pushing input to the bottom
-        LinearLayout.LayoutParams scrollParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f);
-        scrollParams.setMargins(0, 0, 0, 24);
-        scrollView.setLayoutParams(scrollParams);
-
-        // input container (EditText + Send Button)
-        LinearLayout inputLayout = new LinearLayout(this);
-        inputLayout.setOrientation(LinearLayout.HORIZONTAL);
-        inputLayout.setGravity(android.view.Gravity.CENTER_VERTICAL);
-
-        android.widget.EditText commentInput = new android.widget.EditText(this);
-        commentInput.setHint("Write a comment...");
-        commentInput.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-
-        Button sendButton = new Button(this);
-        sendButton.setText("Post");
-        sendButton.setBackgroundColor(0xFF59A91E);
-        sendButton.setTextColor(0xFFFFFFFF);
-
-        inputLayout.addView(commentInput);
-        inputLayout.addView(sendButton);
-
-        // assemble the UI
-        mainLayout.addView(scrollView);
-        mainLayout.addView(inputLayout);
-        builder.setView(mainLayout);
+        View dialogView = getLayoutInflater().inflate(R.layout.modal_event_comments, null);
+        builder.setView(dialogView);
         builder.setPositiveButton("Close", null);
+
+        ScrollView scrollView = dialogView.findViewById(R.id.commentsScrollView);
+        LinearLayout commentsListLayout = dialogView.findViewById(R.id.commentsListLayout);
+        com.google.android.material.textfield.TextInputEditText commentInput =
+                dialogView.findViewById(R.id.commentInput);
+        com.google.android.material.button.MaterialButton sendButton =
+                dialogView.findViewById(R.id.sendButton);
 
         androidx.appcompat.app.AlertDialog dialog = builder.create();
 
-        // REAL-TIME FIRESTORE LISTENER
-        // storing comments as a sub-collection under the specific event
         com.google.firebase.firestore.ListenerRegistration listener = db.collection("events")
-                .document(eventId).collection("comments")
+                .document(eventId)
+                .collection("comments")
                 .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.ASCENDING)
                 .addSnapshotListener((snapshots, e) -> {
                     if (e != null || snapshots == null) return;
 
-                    commentsListLayout.removeAllViews(); // Clear and redraw
+                    commentsListLayout.removeAllViews();
 
                     if (snapshots.isEmpty()) {
                         TextView tv = new TextView(this);
-                        tv.setText("No comments yet. Be the first!");
+                        tv.setText("No comments yet.");
                         tv.setTextColor(0xFF888888);
+                        tv.setTextSize(15f);
                         commentsListLayout.addView(tv);
                     }
 
                     for (DocumentSnapshot doc : snapshots.getDocuments()) {
-                        com.example.getoutthere.models.Comment comment = doc.toObject(com.example.getoutthere.models.Comment.class);
-                        if(comment != null) {
+                        com.example.getoutthere.models.Comment comment =
+                                doc.toObject(com.example.getoutthere.models.Comment.class);
+
+                        if (comment != null) {
                             TextView tv = new TextView(this);
-                            // Format: "Person: This event looks fun!"
-                            android.text.SpannableString formattedText = new android.text.SpannableString(comment.getEntrantName() + ": " + comment.getContent());
-                            formattedText.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, comment.getEntrantName().length() + 1, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                            android.text.SpannableString formattedText =
+                                    new android.text.SpannableString(
+                                            comment.getEntrantName() + ": " + comment.getContent()
+                                    );
+
+                            formattedText.setSpan(
+                                    new android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+                                    0,
+                                    comment.getEntrantName().length() + 1,
+                                    android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                            );
 
                             tv.setText(formattedText);
                             tv.setTextSize(16f);
-                            tv.setPadding(0, 8, 0, 16);
+                            tv.setTextColor(getResources().getColor(android.R.color.white));
+                            tv.setPadding(24, 20, 24, 20);
+                            tv.setBackgroundResource(R.drawable.bg_nav_glass);
+
+                            LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.MATCH_PARENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                            );
+                            textParams.setMargins(0, 0, 0, 12);
+                            tv.setLayoutParams(textParams);
+
                             commentsListLayout.addView(tv);
                         }
                     }
-                    // auto-scroll to bottom when new comment arrives
+
                     scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
                 });
 
-        //HANDLE POSTING COMMENTS
         sendButton.setOnClickListener(v -> {
-            String text = commentInput.getText().toString().trim();
+            String text = commentInput.getText() == null
+                    ? ""
+                    : commentInput.getText().toString().trim();
+
             if (text.isEmpty()) return;
 
-            // debounce to prevent spam clicks
             sendButton.setEnabled(false);
 
-            // fetch the user's name from their profile to attach it to the comment
             db.collection("profiles").document(entrant.getDeviceId()).get().addOnSuccessListener(doc -> {
-                String userName = doc.exists() ? doc.getString("name") : "Anonymous User";
+                String userName = doc.exists()
+                        ? doc.getString("name")
+                        : "Anonymous User";
 
-                com.example.getoutthere.models.Comment newComment = new com.example.getoutthere.models.Comment(
-                        entrant.getDeviceId(),
-                        userName,
-                        text,
-                        Timestamp.now()
-                );
+                com.example.getoutthere.models.Comment newComment =
+                        new com.example.getoutthere.models.Comment(
+                                entrant.getDeviceId(),
+                                userName,
+                                text,
+                                Timestamp.now()
+                        );
 
-                db.collection("events").document(eventId).collection("comments").add(newComment)
+                db.collection("events").document(eventId).collection("comments")
+                        .add(newComment)
                         .addOnSuccessListener(docRef -> {
-                            commentInput.setText(""); // Clear input on success
+                            commentInput.setText("");
                             sendButton.setEnabled(true);
                         })
-                        .addOnFailureListener(e -> {
+                        .addOnFailureListener(err -> {
                             Toast.makeText(this, "Failed to post comment", Toast.LENGTH_SHORT).show();
                             sendButton.setEnabled(true);
                         });
             });
         });
 
-        // clean up the listener when dialog closes to save memory
         dialog.setOnDismissListener(d -> listener.remove());
-
         dialog.show();
 
-        // ensure the dialog takes up a good amount of vertical space
-        dialog.getWindow().setLayout(android.view.ViewGroup.LayoutParams.MATCH_PARENT, 1200);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
     }
 
 }
