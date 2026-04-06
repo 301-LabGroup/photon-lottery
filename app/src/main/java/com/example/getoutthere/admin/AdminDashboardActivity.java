@@ -84,7 +84,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         View navToNotificationLogs = findViewById(R.id.cardNotificationLogsButton);
         navToNotificationLogs.setOnClickListener(v -> {
-            Intent intent = new Intent(AdminDashboardActivity.this, EntrantNotificationActivity.class);
+            Intent intent = new Intent(AdminDashboardActivity.this, NotificationLogsActivity.class);
             startActivity(intent);
         });
     }
